@@ -1,0 +1,55 @@
+# --- Build Artifacts ---
+target/
+build/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# --- IDE Specific (IntelliJ, VS Code, Eclipse) ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# --- macOS Specific (Since you're on a MacBook Air) ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# --- Local Environment & Secrets ---
+.env
+.env.local
+.env.*.local
+application-local.properties
+application-local.yml
+
+# --- Database & Logs ---
+*.log
+neo4j/data/
+neo4j/logs/
+neo4j/import/
+neo4j/plugins/
+
+# --- Dependency Managers ---
+.mvn/
+mvnw
+mvnw.cmd
+.gradle/
+gradlew
+gradlew.bat

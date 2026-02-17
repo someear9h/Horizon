@@ -1,0 +1,10 @@
+### Initialize Demo Topology
+POST http://localhost:8080/api/topology/init
+Content-Type: application/json
+
+###
+
+### Simulate Cable Failure (Cable ID = 1)
+GET http://localhost:8080/api/topology/simulate/1
+
+###
