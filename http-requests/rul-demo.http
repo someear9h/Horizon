@@ -4,9 +4,9 @@ Content-Type: application/json
 
 {
   "cableId": 1,
-  "temperature": 35,
-  "attenuation": 1.5,
-  "load": 25
+  "temperature": 30.0,
+  "attenuation": 0.5,
+  "load": 20.0
 }
 
 ### Send Telemetry 2

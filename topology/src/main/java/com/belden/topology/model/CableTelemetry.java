@@ -7,6 +7,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,4 +26,5 @@ public class CableTelemetry {
     private double load;
     private double health;
     private LocalDateTime timestamp;
+    private LocalDateTime lastSeen;
 }

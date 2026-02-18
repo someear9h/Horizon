@@ -17,6 +17,8 @@ public interface TopologyRepository extends Neo4jRepository<Cable, Long> {
     """)
     String findImpactedAssemblyLine(@Param("cableId") Long cableId);
 
-    @Query("MATCH (c:Cable {id:$cableId})-[:CONNECTS_TO]->(s:Switch)-[:FEEDS]->(m:Machine)-[:PART_OF]->(a:AssemblyLine) RETURN m.name + '::' + a.name LIMIT 1")
+    @Query("MATCH (c:Cable) WHERE c.id = $cableId " +
+            "MATCH (c)-[:CONNECTS_TO]->(s:Switch)-[:FEEDS]->(m:Machine)-[:PART_OF]->(a:AssemblyLine) " +
+            "RETURN m.name + '::' + a.name LIMIT 1")
     Optional<String> findImpactDetails(@Param("cableId") Long cableId);
 }

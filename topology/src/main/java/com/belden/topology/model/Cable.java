@@ -11,12 +11,14 @@ import org.springframework.data.neo4j.core.schema.*;
 @Builder
 public class Cable {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+    @Id @GeneratedValue
+    private Long internalId; // This stops the warning
+
+    @Property("id")
+    private Long cableId; // Use this for your business logic
 
     private String name;
-    private String healthStatus; // HEALTHY / DEGRADED / FAILED
+    private String healthStatus;
     private double attenuation;
 
 }
