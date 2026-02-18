@@ -14,7 +14,7 @@ POST http://localhost:8081/api/telemetry
 Content-Type: application/json
 
 {
-  "cableId": 1,
+  "cableId": 2,
   "temperature": 42,
   "attenuation": 1.8,
   "load": 30

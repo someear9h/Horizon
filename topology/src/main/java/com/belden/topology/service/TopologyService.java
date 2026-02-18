@@ -11,7 +11,7 @@ public class TopologyService {
 
     private final org.springframework.data.neo4j.core.Neo4jClient neo4jClient;
 
-    @Transactional("transactionManager")
+    @Transactional("neo4jTransactionManager")
     public void createSampleTopology() {
 
         neo4jClient.query("""

@@ -17,19 +17,15 @@ public class RulService {
     private static final double FAILURE_THRESHOLD = 40.0;
 
     // Health calculation (mathematical model)
-    public double calculateHealth(double attenuation,
-                                  double temp,
-                                  double load,
-                                  int ageYears) {
-
-        return 100
-                - (2.0 * attenuation)
-                - (1.5 * temp)
-                - (1.2 * load)
-                - (3.0 * ageYears);
+    public double calculateHealth(double attenuation, double temp, double load, int ageYears) {
+        double health = 100.0;
+        if (temp > 25) health -= (temp - 25) * 0.8;
+        health -= (attenuation * 10.0);
+        health -= (load * 0.1);
+        health -= (ageYears * 2.0);
+        return Math.max(0, health);
     }
 
-    // RUL Calculation
     public double calculateRUL(Long cableId) {
         List<CableTelemetry> records = repository.findTop2ByCableIdOrderByTimestampDesc(cableId);
 
@@ -38,25 +34,30 @@ public class RulService {
         CableTelemetry latest = records.get(0);
         CableTelemetry previous = records.get(1);
 
-        // ALREADY FAILED CHECK: If it's already below threshold, RUL is 0
+        // 1. Check if already failed
         if (latest.getHealth() <= FAILURE_THRESHOLD) return 0;
 
-        // Use Seconds for real-time demo accuracy
-        long secsBetween = Duration.between(previous.getTimestamp(), latest.getTimestamp()).toSeconds();
-        if (secsBetween == 0) secsBetween = 1;
+        // 2. Calculate Real Time elapsed
+        long realSecondsBetween = Duration.between(previous.getTimestamp(), latest.getTimestamp()).toSeconds();
+        if (realSecondsBetween == 0) realSecondsBetween = 1;
 
-        // Health difference
+        // 3. DEMO MAGIC: Time Dilation
+        // Treat 1 Real Second as 1 Virtual Day (86400 seconds)
+        // This makes the degradation look realistic over a long period
+        long virtualSecondsBetween = realSecondsBetween * 86400;
+
         double healthDrop = previous.getHealth() - latest.getHealth();
 
-        // If health is improving or stable, we can't predict a failure point
+        // If health is stable, return -1 (No degradation)
         if (healthDrop <= 0) return -1;
 
-        double degradationPerSec = healthDrop / secsBetween;
+        // 4. Calculate Rate based on VIRTUAL time
+        double degradationPerVirtualSec = healthDrop / virtualSecondsBetween;
 
-        // RUL = (Current Health - Failure Point) / Degradation Rate
-        double secondsRemaining = (latest.getHealth() - FAILURE_THRESHOLD) / degradationPerSec;
+        // 5. RUL Calculation
+        double virtualSecondsRemaining = (latest.getHealth() - FAILURE_THRESHOLD) / degradationPerVirtualSec;
 
-        // Convert back to minutes for the response
-        return secondsRemaining / 60.0;
+        // Return Hours
+        return virtualSecondsRemaining / 3600.0;
     }
 }
