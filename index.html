@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Belden Horizon | Intelligent Infrastructure</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f111a;
+            --panel-bg: #1a1d2d;
+            --text-primary: #e0e6ed;
+            --belden-orange: #ff6600;
+            --alert-red: #ff3333;
+            --safe-green: #33cc33;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            /* VERTICAL LAYOUT FOR SCROLLING */
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--belden-orange);
+            padding-bottom: 15px;
+        }
+
+        h1 { margin: 0; font-weight: 300; letter-spacing: 2px; font-size: 2rem; }
+        h1 span { font-weight: 700; color: var(--belden-orange); }
+
+        /* Panels */
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #8b9bb4;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #2d3345;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* 1. Topology View (Huge Area) */
+        #topology-container {
+            height: 500px; /* Tall to prevent congestion */
+        }
+        #network { width: 100%; height: 100%; border: 1px solid #2d3345; border-radius: 4px; background: #131620; }
+
+        /* 2. Health Chart & Metrics */
+        #dashboard-container {
+            min-height: 400px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .metric-card {
+            background: #252a40;
+            padding: 15px 30px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 4px solid var(--belden-orange);
+            min-width: 200px;
+        }
+        .metric-val { font-size: 3rem; font-weight: 700; line-height: 1; margin: 10px 0; }
+        .label { font-size: 0.9rem; color: #8b9bb4; letter-spacing: 1px; }
+
+        canvas { flex-grow: 1; max-height: 300px; width: 100%; }
+
+        /* 3. Alert Banner (Bottom) */
+        #alert-container {
+            background: #23263a;
+            border: 1px solid #333;
+            color: #666;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 150px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #alert-title { font-size: 1.8rem; margin-bottom: 10px; font-weight: bold; }
+        #alert-details { font-size: 1.2rem; opacity: 0.9; line-height: 1.5; }
+        #alert-savings { font-size: 1.3rem; font-weight: bold; margin-top: 10px; color: var(--safe-green); display: none; }
+
+        /* Critical State */
+        .critical-active {
+            background: rgba(255, 51, 51, 0.15) !important;
+            border: 2px solid var(--alert-red) !important;
+            color: #fff !important;
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+            animation: pulse-border 2s infinite;
+        }
+        .critical-active #alert-title { color: var(--alert-red); }
+        .critical-active #alert-savings { display: block; }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--alert-red); box-shadow: 0 0 10px rgba(255,51,51,0.1); }
+            50% { border-color: #ff6666; box-shadow: 0 0 25px rgba(255,51,51,0.4); }
+            100% { border-color: var(--alert-red); box-shadow: 0 0 10px rgba(255,51,51,0.1); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>BELDEN <span>HORIZON</span></h1>
+    <div id="connection-status" style="color: var(--safe-green); font-weight: bold;">● SYSTEM ONLINE</div>
+</header>
+
+<div class="panel" id="topology-container">
+    <div class="panel-title">1. Industrial Topology Map (Neo4j)</div>
+    <div id="network"></div>
+</div>
+
+<div class="panel" id="dashboard-container">
+    <div class="panel-title">2. Asset Lifecycle: Cable-1</div>
+
+    <div class="stats-row">
+        <div class="metric-card">
+            <div class="label">HEALTH SCORE</div>
+            <div class="metric-val" id="health-val">--</div>
+        </div>
+
+        <div class="metric-card" style="border-left-color: #4488ff;">
+            <div class="label">SIMULATION DAY</div>
+            <div class="metric-val" id="day-val">0</div>
+        </div>
+    </div>
+
+    <div style="flex-grow: 1; position: relative;">
+        <canvas id="healthChart"></canvas>
+    </div>
+</div>
+
+<div class="panel" id="alert-container">
+    <div id="alert-title">NO ACTIVE ALERTS</div>
+    <div id="alert-details">Predictive maintenance system standing by.</div>
+    <div id="alert-savings">Potential Savings: $0</div>
+</div>
+
+<script>
+    // --- CONFIG ---
+    const API_BASE = 'http://localhost:8081/api';
+    const CABLE_ID = 1;
+
+    let healthChartInstance = null;
+
+    // --- INIT ---
+    window.onload = function() {
+        initTopology();
+        initChart();
+        updateDashboard();
+        setInterval(updateDashboard, 2000); // 2s Polling
+    };
+
+    // --- TOPOLOGY ---
+    async function initTopology() {
+        try {
+            const response = await fetch(`${API_BASE}/dashboard/graph`);
+            const data = await response.json();
+
+            const nodes = new vis.DataSet(data.nodes.map(n => ({
+                id: String(n.id),
+                label: n.label || 'Node',
+                group: n.group ? n.group[0] : 'default',
+                color: (n.group && n.group.includes('Cable')) ? '#ff6600' :
+                    (n.group && n.group.includes('Switch')) ? '#4488ff' : '#555',
+                shape: (n.group && n.group.includes('Cable')) ? 'dot' : 'box',
+                font: { color: '#ffffff', size: 16 }
+            })));
+
+            const edges = new vis.DataSet(data.edges.map(e => ({
+                from: String(e.from),
+                to: String(e.to),
+                color: { color: '#666' },
+                arrows: 'to',
+                width: 2
+            })));
+
+            const options = {
+                nodes: { borderWidth: 2, size: 25 },
+                physics: { stabilization: true },
+                layout: { hierarchical: { enabled: true, direction: 'LR', sortMethod: 'directed' } }
+            };
+
+            new vis.Network(document.getElementById('network'), { nodes, edges }, options);
+        } catch (e) { console.error("Topology Error", e); }
+    }
+
+    // --- CHART ---
+    function initChart() {
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        healthChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Health (%)',
+                    data: [],
+                    borderColor: '#33cc33',
+                    backgroundColor: 'rgba(51, 204, 51, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false }, // Hide timestamps for clean look
+                    y: { min: 0, max: 100, grid: { color: '#333' } }
+                }
+            }
+        });
+    }
+
+    // --- UPDATE LOOP ---
+    async function updateDashboard() {
+        try {
+            const response = await fetch(`${API_BASE}/dashboard/history/${CABLE_ID}`);
+            const history = await response.json();
+            if (!history || history.length === 0) return;
+
+            // Sort Data
+            const sorted = history.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            const labels = sorted.map(h => new Date(h.timestamp).toLocaleTimeString());
+            const healthData = sorted.map(h => h.health);
+            const currentHealth = healthData[healthData.length - 1];
+
+            // 1. Update Health Score
+            const healthEl = document.getElementById('health-val');
+            healthEl.innerText = Math.round(currentHealth) + '%';
+
+            // Color Logic
+            let color = '#33cc33'; // Green
+            if (currentHealth < 70) color = '#ffcc00'; // Orange
+            if (currentHealth < 50) color = '#ff3333'; // Red
+
+            healthEl.style.color = color;
+            healthChartInstance.data.datasets[0].borderColor = color;
+            healthChartInstance.data.datasets[0].backgroundColor = color + '22';
+
+            // 2. Update "Virtual Day" Counter
+            // Logic: Each record represents a 5-day jump in simulation
+            // We calculate this based on the number of history records
+            const daysPassed = (history.length - 1) * 5;
+            document.getElementById('day-val').innerText = daysPassed > 0 ? daysPassed : 0;
+
+            // 3. Update Graph
+            healthChartInstance.data.labels = labels;
+            healthChartInstance.data.datasets[0].data = healthData;
+            healthChartInstance.update();
+
+            // 4. Update Alert
+            updateAlertBox(currentHealth);
+
+        } catch (e) { console.warn("Polling...", e); }
+    }
+
+    // --- ALERT LOGIC ---
+    function updateAlertBox(health) {
+        const container = document.getElementById('alert-container');
+        const title = document.getElementById('alert-title');
+        const details = document.getElementById('alert-details');
+        const savings = document.getElementById('alert-savings');
+
+        if (health < 50) {
+            container.classList.add('critical-active');
+            title.innerHTML = `⚠️ CRITICAL ALERT: CABLE-${CABLE_ID}`;
+            details.innerHTML = `
+                <strong>Action Required:</strong> IMMEDIATE replacement needed.<br>
+                Risk: Outage of Assembly-Line-3
+            `;
+            savings.innerText = "Potential Savings: $12,000 in downtime prevention.";
+        } else {
+            container.classList.remove('critical-active');
+            title.innerText = "NO ACTIVE ALERTS";
+            details.innerText = "System operating within normal parameters.";
+            savings.innerText = "";
+        }
+    }
+</script>
+</body>
+</html>

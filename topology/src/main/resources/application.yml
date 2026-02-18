@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
   neo4j:
     uri: bolt://localhost:7687

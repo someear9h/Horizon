@@ -12,4 +12,6 @@ public interface CableTelemetryRepository
     List<CableTelemetry> findTop2ByCableIdOrderByTimestampDesc(Long cableId);
 
     Optional<CableTelemetry> findTopByCableIdOrderByTimestampDesc(Long cableId);
+
+    List<CableTelemetry> findTop20ByCableIdOrderByTimestampDesc(Long cableId);
 }
