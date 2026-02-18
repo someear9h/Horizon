@@ -1,0 +1,35 @@
+### Send Telemetry 1
+POST http://localhost:8081/api/telemetry
+Content-Type: application/json
+
+{
+  "cableId": 1,
+  "temperature": 35,
+  "attenuation": 1.5,
+  "load": 25
+}
+
+### Send Telemetry 2
+POST http://localhost:8081/api/telemetry
+Content-Type: application/json
+
+{
+  "cableId": 1,
+  "temperature": 42,
+  "attenuation": 1.8,
+  "load": 30
+}
+
+### Send Telemetry 3
+POST http://localhost:8081/api/telemetry
+Content-Type: application/json
+
+{
+  "cableId": 1,
+  "temperature": 50,
+  "attenuation": 2.2,
+  "load": 40
+}
+
+### Check RUL
+GET http://localhost:8081/api/rul/1

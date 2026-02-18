@@ -23,6 +23,6 @@ public class TopologyController {
     @GetMapping("/simulate/{cableId}")
     public String simulate(@PathVariable Long cableId) {
         String result = impactService.simulateFailure(cableId);
-        return "If Cable fails → Impacted: " + result;
+        return "If Cable " + cableId + " fails → Impacted: " + result;
     }
 }

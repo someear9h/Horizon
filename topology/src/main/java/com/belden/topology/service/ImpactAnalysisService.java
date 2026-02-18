@@ -11,16 +11,19 @@ public class ImpactAnalysisService {
     private final Neo4jClient neo4jClient;
 
     public String simulateFailure(Long cableId) {
-
-        return neo4jClient.query("""
+        // We use .all() to get all impacted lines and join them into a single String
+        java.util.List<String> results = neo4jClient.query("""
             MATCH (c:Cable {id:$cableId})-[:CONNECTS_TO]->(s:Switch)
                   -[:FEEDS]->(m:Machine)
                   -[:PART_OF]->(a:AssemblyLine)
-            RETURN a.name AS assemblyLine
+            RETURN DISTINCT a.name AS assemblyLine
         """)
                 .bind(cableId).to("cableId")
                 .fetchAs(String.class)
-                .one()
-                .orElse("No impact detected");
+                .all() // Changed from .one() to .all()
+                .stream()
+                .toList();
+
+        return results.isEmpty() ? "No impact detected" : String.join(", ", results);
     }
 }

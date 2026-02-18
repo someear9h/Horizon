@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TopologyService {
 
-    
+
     private final org.springframework.data.neo4j.core.Neo4jClient neo4jClient;
 
-    @Transactional
+    @Transactional("transactionManager")
     public void createSampleTopology() {
 
         neo4jClient.query("""
@@ -22,6 +22,9 @@ public class TopologyService {
             CREATE (c)-[:CONNECTS_TO]->(s)
             CREATE (s)-[:FEEDS]->(m)
             CREATE (m)-[:PART_OF]->(a)
+            CREATE (m2:Machine {id:5, name:'Conveyor-Belt'})
+            CREATE (s)-[:FEEDS]->(m2)
+            CREATE (m2)-[:PART_OF]->(a)
         """).run();
     }
 
