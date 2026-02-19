@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System */
+:root {
+  --color-dark: #0f111a;
+  --color-panel: #1a1d2d;
+  --color-orange: #ff6600;
+  --color-red: #ff3333;
+  --color-green: #33cc33;
+  --color-yellow: #ffcc00;
+  --color-esg: #00e676;
+  --color-purple: #aa44ff;
+  --color-blue: #4488ff;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-[#0f111a] text-white font-inter antialiased;
+}
+
+/* Glassmorphism utility */
+.glass {
+  @apply bg-[#1a1d2d]/60 backdrop-blur-md border border-gray-800/50 rounded-lg;
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #666666;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6600;
+}
+
+/* Animation utilities */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  @apply outline-none ring-2 ring-[#ff6600] ring-offset-2 ring-offset-[#0f111a];
+}

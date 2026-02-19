@@ -19,7 +19,7 @@ out/
 .project
 .factorypath
 
-# --- macOS Specific (Since you're on a MacBook Air) ---
+# --- macOS Specific ---
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -47,6 +47,7 @@ neo4j/import/
 neo4j/plugins/
 
 # --- Dependency Managers ---
+node_modules/
 .mvn/
 mvnw
 mvnw.cmd
@@ -54,7 +55,12 @@ mvnw.cmd
 gradlew
 gradlew.bat
 
-# README files
+# --- Documentation Artifacts ---
 sustanability_math.md
 risk_intelligence_math.md
 recommendation_engine_math.md
+
+# --- OS Specific ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
