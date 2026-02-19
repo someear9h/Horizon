@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.belden</groupId>
-    <artifactId>topology</artifactId>
+    <artifactId>horizon-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>topology</name>
     <description>topology</description>
