@@ -1,4 +1,4 @@
-### Send Telemetry 1
+### Send Telemetry for Cable 1 (Starts Healthy)
 POST http://localhost:8081/api/telemetry
 Content-Type: application/json
 
@@ -9,26 +9,26 @@ Content-Type: application/json
   "load": 20.0
 }
 
-### Send Telemetry 2
+### Send Telemetry for Cable 2 (Starts Slightly Degraded)
 POST http://localhost:8081/api/telemetry
 Content-Type: application/json
 
 {
   "cableId": 2,
-  "temperature": 42,
-  "attenuation": 1.8,
-  "load": 30
+  "temperature": 26.0,
+  "attenuation": 0.8,
+  "load": 15.0
 }
 
-### Send Telemetry 3
+### Send Telemetry for Cable 3 (Starts Very Hot & Stressed)
 POST http://localhost:8081/api/telemetry
 Content-Type: application/json
 
 {
-  "cableId": 1,
-  "temperature": 50,
-  "attenuation": 2.2,
-  "load": 40
+  "cableId": 3,
+  "temperature": 38.0,
+  "attenuation": 1.2,
+  "load": 35.0
 }
 
 ### Check RUL

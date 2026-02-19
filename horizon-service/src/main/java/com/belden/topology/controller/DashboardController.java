@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import com.belden.topology.model.CarbonMetrics;
 import org.springframework.web.bind.annotation.*;
+import com.belden.topology.model.RiskAssessment;
+import com.belden.topology.service.RiskScoringService;
 
 import java.util.*;
 
@@ -18,6 +20,7 @@ public class DashboardController {
     private final Neo4jClient neo4jClient;
     private final CableTelemetryRepository telemetryRepository;
     private final SustainabilityService sustainabilityService;
+    private final RiskScoringService riskService;
 
     // 1. Fetch Topology for Vis.js
     @GetMapping("/graph")
@@ -51,5 +54,10 @@ public class DashboardController {
         return telemetryRepository.findTopByCableIdOrderByTimestampDesc(cableId)
                 .map(t -> sustainabilityService.calculateMetrics(cableId, t.getHealth()))
                 .orElse(CarbonMetrics.builder().build()); // Return empty if no data
+    }
+
+    @GetMapping("/risk/{cableId}")
+    public RiskAssessment getRiskProfile(@PathVariable Long cableId) {
+        return riskService.calculateFacilityRisk(cableId);
     }
 }
