@@ -27,4 +27,5 @@ public class CableTelemetry {
     private double health;
     private LocalDateTime timestamp;
     private LocalDateTime lastSeen;
+    private double rulInDays;
 }

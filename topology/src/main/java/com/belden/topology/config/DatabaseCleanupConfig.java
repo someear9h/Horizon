@@ -8,6 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 public class DatabaseCleanupConfig {
 
+    // use this to clean up the neo4j database at http://localhost:7474/
+    // MATCH (n) DETACH DELETE n
+
     @Bean
     public CommandLineRunner cleanDatabase(JdbcTemplate jdbcTemplate) {
         return args -> {

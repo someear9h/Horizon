@@ -17,6 +17,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+#      ddl-auto: create-drop # for one run when the schema changes
     show-sql: true
     properties:
       hibernate:
