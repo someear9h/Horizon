@@ -1,7 +1,9 @@
 package com.belden.topology.controller;
 
 import com.belden.topology.model.CableTelemetry;
+import com.belden.topology.model.Recommendation;
 import com.belden.topology.repository.CableTelemetryRepository;
+import com.belden.topology.service.RecommendationEngine;
 import com.belden.topology.service.SustainabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -21,6 +23,7 @@ public class DashboardController {
     private final CableTelemetryRepository telemetryRepository;
     private final SustainabilityService sustainabilityService;
     private final RiskScoringService riskService;
+    private final RecommendationEngine recommendationEngine;
 
     // 1. Fetch Topology for Vis.js
     @GetMapping("/graph")
@@ -59,5 +62,10 @@ public class DashboardController {
     @GetMapping("/risk/{cableId}")
     public RiskAssessment getRiskProfile(@PathVariable Long cableId) {
         return riskService.calculateFacilityRisk(cableId);
+    }
+
+    @GetMapping("/recommendations/{cableId}")
+    public List<Recommendation> getRecommendations(@PathVariable Long cableId) {
+        return recommendationEngine.generateRecommendations(cableId);
     }
 }

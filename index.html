@@ -7,24 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #0f111a;
-            --panel-bg: #1a1d2d;
-            --text-primary: #e0e6ed;
-            --belden-orange: #ff6600;
-            --alert-red: #ff3333;
-            --safe-green: #33cc33;
-            --risk-yellow: #ffcc00;
-            --esg-green: #00e676;
-            --purple: #aa44ff;
+            --bg-color: #0f111a; --panel-bg: #1a1d2d; --text-primary: #e0e6ed;
+            --belden-orange: #ff6600; --alert-red: #ff3333; --safe-green: #33cc33;
+            --risk-yellow: #ffcc00; --esg-green: #00e676; --purple: #aa44ff;
+            --info-blue: #4488ff;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; gap: 20px;
-            min-height: 100vh;
+            background-color: var(--bg-color); color: var(--text-primary);
+            margin: 0; padding: 20px; display: flex; flex-direction: column; gap: 20px;
         }
 
         header {
@@ -34,56 +26,44 @@
         h1 { margin: 0; font-weight: 300; font-size: 2rem; }
         h1 span { font-weight: 700; color: var(--belden-orange); }
 
-        /* CABLE SWITCHER BUTTONS */
-        .controls {
-            display: flex; gap: 15px; margin-bottom: 5px;
-        }
+        .controls { display: flex; gap: 15px; }
         .btn-cable {
             background: #252a40; color: #fff; border: 1px solid #4488ff;
-            padding: 10px 20px; border-radius: 4px; cursor: pointer;
-            font-weight: bold; transition: 0.3s;
+            padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s;
         }
         .btn-cable:hover { background: #4488ff; }
         .btn-cable.active { background: var(--belden-orange); border-color: var(--belden-orange); }
 
-        .panel {
-            background-color: var(--panel-bg); border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4); padding: 20px;
-            display: flex; flex-direction: column;
-        }
-        .panel-title {
-            font-size: 1.1rem; font-weight: 600; color: #8b9bb4;
-            margin-bottom: 15px; border-bottom: 1px solid #2d3345;
-            padding-bottom: 8px; text-transform: uppercase;
-        }
+        .panel { background-color: var(--panel-bg); border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .panel-title { font-size: 1.1rem; font-weight: 600; color: #8b9bb4; border-bottom: 1px solid #2d3345; padding-bottom: 8px; margin-bottom: 15px; text-transform: uppercase; }
 
-        /* GRID LAYOUTS */
         .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
 
-        #topology-container { height: 400px; }
-        #network { width: 100%; height: 100%; border: 1px solid #2d3345; border-radius: 4px; background: #131620; }
+        #topology-container { height: 350px; }
+        #network { width: 100%; height: 100%; border: 1px solid #2d3345; background: #131620; }
 
-        .metric-card {
-            background: #252a40; padding: 15px; border-radius: 6px;
-            text-align: center; border-left: 4px solid var(--belden-orange);
-            margin-bottom: 10px;
-        }
+        .metric-card { background: #252a40; padding: 15px; border-radius: 6px; text-align: center; border-left: 4px solid var(--belden-orange); }
         .metric-val { font-size: 2.2rem; font-weight: 700; margin: 5px 0; }
         .label { font-size: 0.8rem; color: #8b9bb4; font-weight: 600; }
-        canvas { width: 100%; max-height: 200px; }
+        canvas { width: 100%; max-height: 150px; }
 
-        /* RISK & ALERT */
-        .risk-val { font-size: 3.5rem; font-weight: 800; color: var(--alert-red); }
-        #alert-container {
-            background: #23263a; border: 1px solid #333; color: #666;
-            text-align: center; padding: 15px; transition: all 0.3s;
+        /* AI RECOMMENDATIONS GRID */
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .ai-card {
+            background: linear-gradient(145deg, #1e2235 0%, #171926 100%); border: 1px solid #333;
+            border-radius: 8px; padding: 20px; position: relative; overflow: hidden;
         }
-        .critical-active {
-            background: rgba(255, 51, 51, 0.15) !important; border: 2px solid var(--alert-red) !important;
-            color: #fff !important; animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { border-color: var(--alert-red); } 50% { border-color: #ff6666; } }
+        .ai-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--purple); }
+        .ai-cat { font-size: 0.75rem; color: var(--purple); font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; }
+        .ai-title { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px; }
+        .ai-desc { font-size: 0.9rem; color: #aaa; margin-bottom: 15px; line-height: 1.4; }
+        .ai-impact { font-size: 0.9rem; color: var(--safe-green); font-weight: bold; background: rgba(51, 204, 51, 0.1); padding: 8px; border-radius: 4px; }
+        .ai-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+        .ai-conf { font-size: 0.85rem; color: #888; }
+        .ai-btn { background: transparent; border: 1px solid var(--purple); color: var(--purple); padding: 5px 15px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .ai-btn:hover { background: var(--purple); color: #fff; }
+
     </style>
 </head>
 <body>
@@ -100,64 +80,50 @@
 </div>
 
 <div class="main-grid">
-    <div class="panel" id="topology-container">
-        <div class="panel-title">1. Infrastructure Topology (Neo4j)</div>
-        <div id="network"></div>
-    </div>
-
+    <div class="panel" id="topology-container"><div class="panel-title">1. Graph Topology</div><div id="network"></div></div>
     <div class="panel">
-        <div class="panel-title" style="color: var(--risk-yellow); border-color: var(--risk-yellow);">2. Risk Intelligence</div>
+        <div class="panel-title" style="color: var(--risk-yellow);">2. Risk Engine</div>
         <div style="text-align: center; margin-top: 10px;">
-            <div class="label">INFRASTRUCTURE RISK SCORE</div>
-            <div class="risk-val" id="risk-score">--</div>
-            <div style="font-size: 0.8rem; opacity: 0.7;">(0 = Safe, 100 = Critical)</div>
+            <div class="label">RISK SCORE</div>
+            <div style="font-size: 3rem; font-weight: bold; color: var(--alert-red);" id="risk-score">--</div>
         </div>
-        <div style="margin-top: 20px;">
-            <div class="metric-card" style="border-left-color: var(--risk-yellow); text-align: left;">
-                <div class="label">INSURANCE STATUS</div>
-                <div id="insurance-status" style="color: #fff; font-weight: bold; margin-top: 5px;">CALCULATING...</div>
-            </div>
-            <div class="metric-card" style="border-left-color: var(--alert-red); text-align: left;">
-                <div class="label">VULNERABILITY</div>
-                <div id="risk-factor" style="color: #ffaaaa; font-size: 0.85rem; margin-top: 5px;">Scanning Topology...</div>
-            </div>
+        <div class="metric-card" style="border-left-color: var(--risk-yellow); text-align: left; margin-top: 15px;">
+            <div class="label">INSURANCE STATUS</div><div id="insurance-status" style="color: #fff; font-weight: bold;">--</div>
+        </div>
+        <div class="metric-card" style="border-left-color: var(--alert-red); text-align: left;">
+            <div class="label">VULNERABILITY</div><div id="risk-factor" style="color: #ffaaaa; font-size: 0.85rem;">--</div>
         </div>
     </div>
 </div>
 
 <div class="bottom-grid">
     <div class="panel">
-        <div class="panel-title">3. Operational Health</div>
+        <div class="panel-title">3. Operations</div>
         <div class="metric-card"><div class="label">HEALTH</div><div class="metric-val" id="health-val">--</div></div>
-        <div style="flex-grow: 1;"><canvas id="healthChart"></canvas></div>
+        <div><canvas id="healthChart"></canvas></div>
     </div>
-
     <div class="panel">
-        <div class="panel-title" style="color: var(--purple); border-color: var(--purple);">4. Predictive AI</div>
+        <div class="panel-title" style="color: var(--purple);">4. Predictive AI</div>
         <div class="metric-card" style="border-left-color: var(--purple);"><div class="label">RUL (DAYS)</div><div class="metric-val" id="rul-val">--</div></div>
         <div class="metric-card" style="border-left-color: var(--info-blue);"><div class="label">SIMULATION DAY</div><div class="metric-val" id="day-val">0</div></div>
     </div>
-
     <div class="panel">
-        <div class="panel-title" style="color: var(--esg-green); border-color: var(--esg-green);">5. Sustainability</div>
+        <div class="panel-title" style="color: var(--esg-green);">5. Sustainability</div>
         <div class="metric-card" style="border-left-color: var(--esg-green);">
-            <div class="label">CO₂ AVOIDED</div><div class="metric-val" id="esg-avoided" style="color: var(--esg-green);">--</div><div class="label">KG CO₂</div>
+            <div class="label">CO₂ AVOIDED (KG)</div><div class="metric-val" id="esg-avoided" style="color: var(--esg-green);">--</div>
         </div>
-        <div style="text-align: center; margin-top: 15px;">
-            <span id="esg-rating" style="background: var(--esg-green); color: #000; padding: 5px 15px; border-radius: 4px; font-weight: bold;">RATING: --</span>
-        </div>
+        <div style="text-align: center; margin-top: 15px;"><span id="esg-rating" style="background: var(--esg-green); color: #000; padding: 5px 15px; border-radius: 4px; font-weight: bold;">RATING: --</span></div>
     </div>
 </div>
 
-<div class="panel" id="alert-container">
-    <div id="alert-title" style="font-size: 1.5rem; font-weight: bold;">NO ACTIVE ALERTS</div>
-    <div id="alert-details">System Nominal</div>
+<div class="panel">
+    <div class="panel-title" style="color: var(--purple); border-color: var(--purple);">6. Autonomous Recommendations (Belden AI)</div>
+    <div class="ai-grid" id="rec-container">
+    </div>
 </div>
 
 <script>
     const API_BASE = 'http://localhost:8081/api';
-
-    // NEW: Dynamic Cable Switching State
     let currentCableId = 1;
     let healthChartInstance = null;
 
@@ -168,104 +134,87 @@
         setInterval(updateDashboard, 2000);
     };
 
-    // UI function to handle button clicks
     function switchCable(id) {
         currentCableId = id;
         document.querySelectorAll('.btn-cable').forEach(btn => btn.classList.remove('active'));
         document.getElementById('btn-' + id).classList.add('active');
-
-        // Clear chart immediately for visual feedback
-        healthChartInstance.data.labels = [];
-        healthChartInstance.data.datasets[0].data = [];
-        healthChartInstance.update();
-
+        healthChartInstance.data.labels = []; healthChartInstance.data.datasets[0].data = []; healthChartInstance.update();
         updateDashboard();
     }
 
     async function initTopology() {
         try {
-            const response = await fetch(`${API_BASE}/dashboard/graph`);
-            const data = await response.json();
-            const nodes = new vis.DataSet(data.nodes.map(n => ({
-                id: String(n.id), label: n.label, group: n.group ? n.group[0] : 'default',
-                color: (n.group && n.group.includes('Cable')) ? '#ff6600' : (n.group && n.group.includes('Switch')) ? '#4488ff' : '#555',
-                shape: 'dot', font: { color: '#fff' }
-            })));
+            const res = await fetch(`${API_BASE}/dashboard/graph`); const data = await res.json();
+            const nodes = new vis.DataSet(data.nodes.map(n => ({ id: String(n.id), label: n.label, color: n.group.includes('Cable') ? '#ff6600' : '#4488ff', font: {color: '#fff'} })));
             const edges = new vis.DataSet(data.edges.map(e => ({ from: String(e.from), to: String(e.to), color: '#666' })));
-            new vis.Network(document.getElementById('network'), { nodes, edges }, { physics: { stabilization: true } });
-        } catch (e) { console.error(e); }
+            new vis.Network(document.getElementById('network'), {nodes, edges}, {});
+        } catch (e) {}
     }
 
     function initChart() {
-        const ctx = document.getElementById('healthChart').getContext('2d');
-        healthChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: { labels: [], datasets: [{ label: 'Health', data: [], borderColor: '#33cc33', borderWidth: 2, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, max: 100, grid: { color: '#333' } } } }
+        healthChartInstance = new Chart(document.getElementById('healthChart').getContext('2d'), {
+            type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#33cc33', borderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {x: {display: false}, y: {min: 0, max: 100}} }
         });
     }
 
     async function updateDashboard() {
         try {
-            // ALL FETCHES NOW USE currentCableId
-            const histRes = await fetch(`${API_BASE}/dashboard/history/${currentCableId}`);
-            const history = await histRes.json();
-            if (!history.length) return;
-            const sorted = history.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            const latest = sorted[sorted.length - 1];
+            const histRes = await fetch(`${API_BASE}/dashboard/history/${currentCableId}`); const history = await histRes.json();
+            if(!history.length) return;
+            const latest = history[0]; // Assuming backend sorts DESC
 
-            const carbonRes = await fetch(`${API_BASE}/dashboard/carbon/${currentCableId}`);
-            const carbon = await carbonRes.json();
-
-            const riskRes = await fetch(`${API_BASE}/dashboard/risk/${currentCableId}`);
-            const risk = await riskRes.json();
-
-            // RENDER LOGIC
             document.getElementById('health-val').innerText = Math.round(latest.health) + '%';
-
-            let rulDisplay = Math.round(latest.rulInDays || 0);
-            if (latest.health <= 0) rulDisplay = 0;
-            document.getElementById('rul-val').innerText = rulDisplay;
+            document.getElementById('rul-val').innerText = latest.health <= 0 ? 0 : Math.round(latest.rulInDays || 0);
             document.getElementById('day-val').innerText = (history.length - 1) * 5;
+
+            // Chart update
+            const reversed = [...history].reverse();
+            let color = latest.health > 70 ? '#33cc33' : (latest.health > 50 ? '#ffcc00' : '#ff3333');
+            document.getElementById('health-val').style.color = color;
+            healthChartInstance.data.labels = reversed.map(h => h.timestamp);
+            healthChartInstance.data.datasets[0].data = reversed.map(h => h.health);
+            healthChartInstance.data.datasets[0].borderColor = color;
+            healthChartInstance.update();
+
+            // Fetch Rest
+            const [carbon, risk, recs] = await Promise.all([
+                fetch(`${API_BASE}/dashboard/carbon/${currentCableId}`).then(r=>r.json()),
+                fetch(`${API_BASE}/dashboard/risk/${currentCableId}`).then(r=>r.json()),
+                fetch(`${API_BASE}/dashboard/recommendations/${currentCableId}`).then(r=>r.json())
+            ]);
 
             if (carbon) {
                 document.getElementById('esg-avoided').innerText = carbon.avoidedCarbonKg.toFixed(2);
                 document.getElementById('esg-rating').innerText = "RATING: " + carbon.sustainabilityRating;
             }
-
             if (risk) {
-                const score = risk.overallRiskScore;
-                const scoreEl = document.getElementById('risk-score');
-                scoreEl.innerText = score + "/100";
-
-                if (score < 30) scoreEl.style.color = 'var(--safe-green)';
-                else if (score < 60) scoreEl.style.color = 'var(--risk-yellow)';
-                else scoreEl.style.color = 'var(--alert-red)';
-
+                document.getElementById('risk-score').innerText = risk.overallRiskScore;
+                document.getElementById('risk-score').style.color = risk.overallRiskScore < 30 ? 'var(--safe-green)' : (risk.overallRiskScore < 60 ? 'var(--risk-yellow)' : 'var(--alert-red)');
                 document.getElementById('insurance-status').innerText = risk.insuranceStatus;
-                document.getElementById('insurance-status').style.color = score < 30 ? 'var(--safe-green)' : (score < 60 ? 'var(--risk-yellow)' : 'var(--alert-red)');
                 document.getElementById('risk-factor').innerText = risk.redundancyGap;
             }
 
-            let color = latest.health > 70 ? '#33cc33' : (latest.health > 50 ? '#ffcc00' : '#ff3333');
-            document.getElementById('health-val').style.color = color;
-            healthChartInstance.data.labels = sorted.map(h => h.timestamp);
-            healthChartInstance.data.datasets[0].data = sorted.map(h => h.health);
-            healthChartInstance.data.datasets[0].borderColor = color;
-            healthChartInstance.update();
+            // RENDER RECOMMENDATIONS (FEATURE 5)
+            const recContainer = document.getElementById('rec-container');
+            recContainer.innerHTML = '';
+            recs.forEach(r => {
+                let borderCol = r.category === 'MAINTENANCE' ? 'var(--alert-red)' : (r.category === 'SUSTAINABILITY' ? 'var(--esg-green)' : 'var(--purple)');
+                recContainer.innerHTML += `
+                    <div class="ai-card" style="border-left-color: ${borderCol};">
+                        <div class="ai-cat" style="color: ${borderCol}">${r.category}</div>
+                        <div class="ai-title">${r.title}</div>
+                        <div class="ai-desc">${r.description}</div>
+                        <div class="ai-impact">${r.businessImpact}</div>
+                        <div class="ai-footer">
+                            <div class="ai-conf">Confidence: <strong>${r.confidenceScore}%</strong></div>
+                            <button class="ai-btn" style="border-color: ${borderCol}; color: ${borderCol}">${r.actionLabel}</button>
+                        </div>
+                    </div>
+                `;
+            });
 
-            // DYNAMIC ALERT BASED ON CABLE
-            if (latest.health < 50) {
-                document.getElementById('alert-container').classList.add('critical-active');
-                document.getElementById('alert-title').innerHTML = `⚠️ CRITICAL FAILURE: CABLE-${currentCableId}`;
-                document.getElementById('alert-details').innerHTML = "Action: Replace immediately to prevent outage.";
-            } else {
-                document.getElementById('alert-container').classList.remove('critical-active');
-                document.getElementById('alert-title').innerHTML = `NO ACTIVE ALERTS`;
-                document.getElementById('alert-details').innerHTML = "System Nominal";
-            }
-
-        } catch (e) { console.warn("Polling...", e); }
+        } catch (e) {}
     }
 </script>
 </body>
