@@ -60,7 +60,9 @@
 ---
 
 # 🧠 System Architecture
-Upload Sys arch image here
+<p align="center">
+  <img src="./systemarch.png" width="900" alt="Horizon System Architecture Diagram"/>
+</p>
 
 ### 🔄 Event-Driven Pipeline
 
