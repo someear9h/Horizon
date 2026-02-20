@@ -19,18 +19,7 @@ out/
 .project
 .factorypath
 
-# --- macOS Specific ---
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
+
 
 # --- Local Environment & Secrets ---
 .env
@@ -64,3 +53,16 @@ recommendation_engine_math.md
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# --- macOS Specific ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
