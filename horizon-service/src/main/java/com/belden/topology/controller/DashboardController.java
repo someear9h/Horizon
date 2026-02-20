@@ -28,20 +28,17 @@ public class DashboardController {
     // 1. Fetch Topology for Vis.js
     @GetMapping("/graph")
     public Map<String, Object> getGraph() {
-        // Fetch Nodes: We explicitly cast IDs to String to be safe for the frontend
+        // We use DISTINCT to ensure every node and edge is unique before sending to the UI
         Collection<Map<String, Object>> nodesRaw = neo4jClient.query(
-                "MATCH (n) RETURN toString(elementId(n)) as id, labels(n) as group, n.name as label"
+                "MATCH (n) RETURN DISTINCT toString(elementId(n)) as id, labels(n) as group, n.name as label"
         ).fetch().all();
 
-        // Fetch Edges: We match IDs to strings here too
         Collection<Map<String, Object>> edgesRaw = neo4jClient.query(
-                "MATCH (n)-[r]->(m) RETURN toString(elementId(n)) as from, toString(elementId(m)) as to"
+                "MATCH (n)-[r]->(m) " +
+                        "RETURN DISTINCT toString(elementId(n)) as from, toString(elementId(m)) as to"
         ).fetch().all();
 
-        return Map.of(
-                "nodes", nodesRaw,
-                "edges", edgesRaw
-        );
+        return Map.of("nodes", nodesRaw, "edges", edgesRaw);
     }
 
     // 2. Fetch History for Chart.js
