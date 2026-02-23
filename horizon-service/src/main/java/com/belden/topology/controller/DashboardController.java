@@ -28,14 +28,18 @@ public class DashboardController {
     // 1. Fetch Topology for Vis.js
     @GetMapping("/graph")
     public Map<String, Object> getGraph() {
-        // We use DISTINCT to ensure every node and edge is unique before sending to the UI
+        // We extract the first label from the array to use as the group
         Collection<Map<String, Object>> nodesRaw = neo4jClient.query(
-                "MATCH (n) RETURN DISTINCT toString(elementId(n)) as id, labels(n) as group, n.name as label"
+                "MATCH (n) " +
+                        "RETURN DISTINCT toString(elementId(n)) as id, " +
+                        "head(labels(n)) as group, " + // Head gets the first label as a string
+                        "n.name as label"
         ).fetch().all();
 
         Collection<Map<String, Object>> edgesRaw = neo4jClient.query(
                 "MATCH (n)-[r]->(m) " +
-                        "RETURN DISTINCT toString(elementId(n)) as from, toString(elementId(m)) as to"
+                        "RETURN DISTINCT toString(elementId(n)) as from, " +
+                        "toString(elementId(m)) as to"
         ).fetch().all();
 
         return Map.of("nodes", nodesRaw, "edges", edgesRaw);

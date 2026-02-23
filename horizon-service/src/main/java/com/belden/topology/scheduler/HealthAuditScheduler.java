@@ -21,9 +21,9 @@ public class HealthAuditScheduler {
     private final CableTelemetryRepository telemetryRepository;
 
     private int virtualDaysPassed = 0;
-    private final int SIMULATION_STEP_DAYS = 5; // We jump 5 days every tick
+    private final int SIMULATION_STEP_DAYS = 6; // We jump 5 days every tick
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 1000)
     public void performGlobalHealthAudit() {
         virtualDaysPassed += SIMULATION_STEP_DAYS;
 
@@ -37,8 +37,11 @@ public class HealthAuditScheduler {
                         System.out.println(">>> [AUTO-AUDIT] Simulating Decay for Cable-" + cable.getCableId());
 
                         // 2. DEGRADE
-                        double newTemp = lastData.getTemperature() + 4.0;
-                        double newAttn = lastData.getAttenuation() + 0.6;
+//                        double newTemp = lastData.getTemperature() + 4.0;
+//                        double newAttn = lastData.getAttenuation() + 0.6;
+
+                        double newTemp = lastData.getTemperature() + 0.5; // Slow heat rise
+                        double newAttn = lastData.getAttenuation() + 0.05; // Gradual signal loss
                         double currentLoad = lastData.getLoad();
 
                         double currentHealth = rulService.calculateHealth(newAttn, newTemp, currentLoad, 2);
