@@ -1,15 +1,12 @@
 package com.belden.topology.controller;
 
-import com.belden.topology.model.CableTelemetry;
-import com.belden.topology.model.Recommendation;
+import com.belden.topology.model.*;
 import com.belden.topology.repository.CableTelemetryRepository;
 import com.belden.topology.service.RecommendationEngine;
 import com.belden.topology.service.SustainabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
-import com.belden.topology.model.CarbonMetrics;
 import org.springframework.web.bind.annotation.*;
-import com.belden.topology.model.RiskAssessment;
 import com.belden.topology.service.RiskScoringService;
 
 import java.util.*;
@@ -49,7 +46,7 @@ public class DashboardController {
     @GetMapping("/history/{cableId}")
     public List<CableTelemetry> getHistory(@PathVariable Long cableId) {
         // Return last 20 records for the graph
-        return telemetryRepository.findTop20ByCableIdOrderByTimestampDesc(cableId);
+        return telemetryRepository.findByCableIdOrderByTimestampDesc(cableId);
     }
 
     @GetMapping("/carbon/{cableId}")
@@ -68,5 +65,48 @@ public class DashboardController {
     @GetMapping("/recommendations/{cableId}")
     public List<Recommendation> getRecommendations(@PathVariable Long cableId) {
         return recommendationEngine.generateRecommendations(cableId);
+    }
+
+    @GetMapping("/report/{cableId}")
+    public CableLifecycleReport getCableLifecycleReport(@PathVariable Long cableId) {
+
+        // 1. Fetch entire history sorted from birth to death
+        List<CableTelemetry> history = telemetryRepository.findByCableIdOrderByTimestampAsc(cableId);
+
+        if (history.isEmpty()) {
+            return CableLifecycleReport.builder().cableId(cableId).build();
+        }
+
+        // 2. Extract key lifecycle events
+        CableTelemetry firstRecord = history.get(0);
+        CableTelemetry lastRecord = history.get(history.size() - 1);
+
+        // Calculate total days survived (Assuming your simulator jumps 6 days per tick)
+        int virtualDaysSurvived = history.size() * 6;
+
+        // 3. Calculate Environmental Averages
+        double avgTemp = history.stream().mapToDouble(CableTelemetry::getTemperature).average().orElse(0.0);
+        double avgAttn = history.stream().mapToDouble(CableTelemetry::getAttenuation).average().orElse(0.0);
+
+        // 4. AI "Root Cause" Diagnosis Logic
+        String cause = "Standard Wear & Tear";
+        if (avgTemp > 65.0) {
+            cause = "Thermal Degradation (High Heat Exposure)";
+        } else if (avgAttn > 3.0) {
+            cause = "Physical Stress / EMI Interference";
+        }
+
+        // 5. Build and return the executive report
+        return CableLifecycleReport.builder()
+                .cableId(cableId)
+                .totalVirtualDaysSurvived(virtualDaysSurvived)
+                .startingHealth(firstRecord.getHealth())
+                .finalHealth(lastRecord.getHealth())
+                .averageOperatingTemp(avgTemp)
+                .averageAttenuation(avgAttn)
+                .primaryFailureCause(cause)
+                .avoidedCarbonKg(virtualDaysSurvived * 0.04) // Small ESG metric
+                .historicalTimeline(history) // The raw data for your React chart
+                .build();
     }
 }

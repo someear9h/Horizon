@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import CableSwitcher from '../components/CableSwitcher';
 import TopologyGraph from '../components/TopologyGraph';
 import HealthChart from '../components/HealthChart';
+import AiReportModal from '../components/AiReportModal';
 import MetricCard from '../components/MetricCard';
 import RiskIndicator from '../components/RiskIndicator';
 import CarbonFootprint from '../components/CarbonFootprint';
@@ -26,9 +27,9 @@ export default function Home() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Cable Switcher */}
+        {/* Cable Switcher & AI Report Button */}
         <motion.div
-          className="mb-12"
+          className="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -37,6 +38,8 @@ export default function Home() {
             currentCableId={currentCableId}
             onCableChange={setCurrentCableId}
           />
+          {/* AI Post-Mortem Generator Button */}
+          <AiReportModal cableId={currentCableId} />
         </motion.div>
 
         {/* Key Metrics Grid */}

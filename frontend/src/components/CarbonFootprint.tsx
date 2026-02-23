@@ -9,7 +9,6 @@ interface CarbonFootprintProps {
 }
 
 const CarbonFootprint: React.FC<CarbonFootprintProps> = ({ data, loading }) => {
-  // ✅ FIX: Only show loading if we have NO data to prevent 2-second flickering
   if (loading && !data) {
     return (
       <div className="bg-[#1a1d2d]/60 backdrop-blur-md border border-gray-800/50 rounded-lg p-6 shadow-2xl animate-pulse space-y-4">
@@ -23,6 +22,16 @@ const CarbonFootprint: React.FC<CarbonFootprintProps> = ({ data, loading }) => {
 
   const netCarbon = data.avoidedCarbonKg - data.embeddedCarbonKg;
   const isPositive = netCarbon > 0;
+
+  // ✅ FIX: Map the String grade to the visual dot system safely
+  const getDotCount = (rating: string | undefined) => {
+    if (rating === 'A+') return 5;
+    if (rating === 'B') return 3;
+    if (rating === 'C') return 1;
+    return 0; // Default fallback
+  };
+
+  const activeDots = getDotCount(data.sustainabilityRating?.toString());
 
   return (
     <motion.div
@@ -69,14 +78,15 @@ const CarbonFootprint: React.FC<CarbonFootprintProps> = ({ data, loading }) => {
             <div className="flex items-center justify-between">
               <span className="text-gray-400 text-sm">Sustainability Status</span>
               <div className="flex gap-1">
+                {/* ✅ FIX: Iterates using the exact active dots mapped from the letter grade */}
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className={`w-2 h-2 rounded-full ${i < Math.round(data.sustainabilityRating / 20) ? 'bg-[#00e676]' : 'bg-gray-700'}`} />
+                  <div key={i} className={`w-2 h-2 rounded-full ${i < activeDots ? 'bg-[#00e676]' : 'bg-gray-700'}`} />
                 ))}
               </div>
             </div>
-            {/* ✅ FIXED: No more "C%" template hallucination */}
-            <p className="text-xs text-esg-green font-bold mt-2 uppercase tracking-widest">
-              {data.sustainabilityRating}% SUSTAINABLE
+            {/* ✅ FIX: Removed the "%" symbol and formatted neatly */}
+            <p className="text-xs text-[#00e676] font-bold mt-2 uppercase tracking-widest">
+              GRADE: {data.sustainabilityRating} RATED
             </p>
           </div>
         </div>

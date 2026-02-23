@@ -18,15 +18,14 @@ interface HealthChartProps {
 }
 
 const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
-  // ✅ SENIOR FIX: Data remains mapped to days for the Tooltip, 
-  // but we will hide the labels on the axis itself.
+  // ✅ FIX: Removed .slice(-20) so the graph renders the complete history timeline.
+  // We keep .reverse() so the oldest data is on the left and newest is on the right.
   const chartData = [...data]
     .reverse() 
     .map((record, index) => ({
-      dayLabel: `Day ${index + 1}`,
+      dayLabel: `Day ${(index + 1) * 6}`, // Multiplied by 6 to match the virtual days scale
       health: Math.round(record.health),
-    }))
-    .slice(-20); 
+    }));
 
   return (
     <motion.div
@@ -52,7 +51,7 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333333" vertical={false} />
               <XAxis 
                 dataKey="dayLabel" 
-                hide={true} // ✅ REMOVED: Hides Day 1, Day 2, etc. labels
+                hide={true} 
               />
               <YAxis 
                 stroke="#666666" 
@@ -72,7 +71,7 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
                 dataKey="health"
                 stroke="#ff6600"
                 strokeWidth={4}
-                dot={false} // Clean line for enterprise look
+                dot={false}
                 activeDot={{ r: 6, stroke: '#ffffff', strokeWidth: 2 }}
                 isAnimationActive={false}
               />
@@ -84,7 +83,6 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
           </div>
         )}
         
-        {/* ✅ TIME PROGRESSION OVERLAY */}
         <div className="flex flex-col items-center mt-2 mb-4 px-8">
           <div className="w-full flex items-center opacity-60">
             <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-500 to-gray-500"></div>

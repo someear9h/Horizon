@@ -9,9 +9,10 @@ import java.util.Optional;
 public interface CableTelemetryRepository
         extends JpaRepository<CableTelemetry, Long> {
 
-    List<CableTelemetry> findTop2ByCableIdOrderByTimestampDesc(Long cableId);
 
     Optional<CableTelemetry> findTopByCableIdOrderByTimestampDesc(Long cableId);
 
-    List<CableTelemetry> findTop20ByCableIdOrderByTimestampDesc(Long cableId);
+    List<CableTelemetry> findByCableIdOrderByTimestampAsc(Long cableId);
+
+    List<CableTelemetry> findByCableIdOrderByTimestampDesc(Long cableId);
 }
