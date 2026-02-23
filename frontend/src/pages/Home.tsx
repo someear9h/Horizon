@@ -11,6 +11,7 @@ import MetricCard from '../components/MetricCard';
 import RiskIndicator from '../components/RiskIndicator';
 import CarbonFootprint from '../components/CarbonFootprint';
 import RecommendationsList from '../components/RecommendationsList';
+import AlertNotificationCenter from '../components/AlertNotificationCenter'; // <-- Import the new component
 import useDashboardData from '../hooks/useDashboardData';
 
 export default function Home() {
@@ -25,6 +26,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0f111a] text-white font-inter">
       <Header />
+      
+      {/* This runs silently in the background. When the backend registers a cable
+        dropping below a threshold, this will automatically trigger the popup toast!
+      */}
+      <AlertNotificationCenter />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Cable Switcher & AI Report Button */}
