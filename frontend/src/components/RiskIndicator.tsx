@@ -94,7 +94,7 @@ const RiskIndicator: React.FC<RiskIndicatorProps> = ({ data, loading }) => {
               <div>
                 <p className="text-xs text-gray-400">Redundancy Gap</p>
                 <p className="text-sm font-bold text-white">
-                  {data.redundancyGap}%
+                  {data.redundancyGap}
                 </p>
               </div>
             </div>

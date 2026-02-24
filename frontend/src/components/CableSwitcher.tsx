@@ -11,9 +11,9 @@ const CableSwitcher: React.FC<CableSwitcherProps> = ({
   onCableChange,
 }) => {
   const cables = [
-    { id: 1, label: 'Cable A' },
-    { id: 2, label: 'Cable B' },
-    { id: 3, label: 'Cable C' },
+    { id: 1, label: 'Cable 1' },
+    { id: 2, label: 'Cable 2' },
+    { id: 3, label: 'Cable 3' },
   ];
 
   return (
