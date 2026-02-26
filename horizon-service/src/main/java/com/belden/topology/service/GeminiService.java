@@ -35,11 +35,11 @@ public class GeminiService {
             // 2. The "Winner Level" System Prompt
             String prompt = "You are an AI Industrial Reliability Expert for Belden Horizon. " +
                     "Analyze the following JSON telemetry report of a failed Hirschmann network cable. " +
-                    "Write a highly technical, crisp, 3-sentence executive post-mortem for a Plant Manager. " +
-                    "RULE 1: Identify the Layer 1 root cause by citing the final Temperature, Attenuation, SNR, and MSE metrics provided. " +
-                    "RULE 2: State the exact Avoided Carbon footprint (in kg CO2e) achieved through proactive monitoring. " +
-                    "RULE 3: Do NOT mention timelines, days survived, or durations. Focus entirely on the physical metrics and ESG impact. " +
-                    "Do not use markdown formatting, keep it plain text. \n\n" +
+                    "Generate a chronological degradation report. " +
+                    "RULE 1: Format the output strictly day-by-day using the 'degradationMilestones' provided in the JSON (e.g., 'Day 50: ...', 'Day 100: ...'). " +
+                    "RULE 2: For each milestone, explicitly state the Temperature, Attenuation, SNR, and MSE metrics, and briefly explain the physical state of the cable. " +
+                    "RULE 3: Conclude the report with a 'Final Impact' statement that explicitly declares the exact number of days the cable survived (using the 'Final Status' day from the JSON), and state the exact Avoided Carbon footprint in kg CO2e. " +
+                    "Do not use markdown formatting like asterisks or bold text, just use clean line breaks. \n\n" +
                     "DATA: " + minifiedJson;
 
             // 3. Build the Gemini Request Payload

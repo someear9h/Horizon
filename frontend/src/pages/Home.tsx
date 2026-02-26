@@ -27,7 +27,6 @@ export default function Home() {
     <div className="min-h-screen bg-[#0f111a] text-white font-inter">
       <Header />
       
-      {/* Headless component for Toast logic [cite: 19] */}
       <AlertNotificationCenter />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
@@ -41,7 +40,8 @@ export default function Home() {
             currentCableId={currentCableId}
             onCableChange={setCurrentCableId}
           />
-          <AiReportModal cableId={currentCableId} />
+          {/* Render the new AI button */}
+          <AiReportModal cableId={currentCableId} /> 
         </motion.div>
 
         <section className="mb-12">

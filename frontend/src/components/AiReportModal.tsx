@@ -14,7 +14,7 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
   const fetchAiReport = async () => {
     setIsLoading(true);
     setIsOpen(true);
-    setSummary(null); // Clear previous summary
+    setSummary(null); 
 
     try {
       const response = await fetch(`http://localhost:8081/api/report/${cableId}`);
@@ -41,7 +41,7 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
           onClick={fetchAiReport} 
           size="3"
           style={{ 
-            backgroundColor: '#F5A623', // Belden-style Yellow/Orange
+            backgroundColor: '#F5A623', 
             color: '#111', 
             cursor: 'pointer', 
             fontWeight: 'bold',
@@ -52,7 +52,7 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
         </Button>
       </Dialog.Trigger>
 
-      <Dialog.Content style={{ maxWidth: 550, borderRadius: '12px' }}>
+      <Dialog.Content style={{ maxWidth: 650 /* 🚀 Widened slightly for better reading */, borderRadius: '12px' }}>
         <Dialog.Title style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#222' }}>
           🤖 Horizon Intelligence: Asset #{cableId}
         </Dialog.Title>
@@ -63,7 +63,6 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
         <Flex direction="column" gap="3" style={{ minHeight: '120px', justifyContent: 'center' }}>
           {isLoading ? (
             <Flex align="center" justify="center" direction="column" gap="3">
-              {/* Simple pure CSS loading spinner */}
               <div style={{
                 border: '4px solid #f3f3f3',
                 borderTop: '4px solid #F5A623',
@@ -81,11 +80,26 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
               backgroundColor: '#f9fafb', 
               padding: '20px', 
               borderRadius: '8px', 
-              borderLeft: '5px solid #F5A623' 
+              borderLeft: '5px solid #F5A623',
+              maxHeight: '400px', /* 🚀 Added scroll for longer day-by-day logs */
+              overflowY: 'auto'
             }}>
-              <Text as="p" size="3" style={{ lineHeight: '1.6', color: '#111' }}>
-                {summary}
-              </Text>
+              {/* Map through the line breaks so it formats cleanly */}
+              {summary?.split('\n').map((paragraph, index) => {
+                // If it's an empty line, just return a small spacer
+                if (paragraph.trim() === '') return <div key={index} style={{ height: '8px' }} />;
+                
+                return (
+                  <Text key={index} as="p" size="3" style={{ 
+                    lineHeight: '1.6', 
+                    color: '#111',
+                    marginBottom: '12px',
+                    fontWeight: paragraph.startsWith('Day') || paragraph.startsWith('Final Impact') ? 'bold' : 'normal' // 🚀 Make headers bold!
+                  }}>
+                    {paragraph}
+                  </Text>
+                );
+              })}
             </div>
           )}
         </Flex>
@@ -99,7 +113,6 @@ const AiReportModal: React.FC<AiReportModalProps> = ({ cableId }) => {
         </Flex>
       </Dialog.Content>
 
-      {/* Inline styles for the spinner animation */}
       <style>
         {`
           @keyframes spin {
