@@ -8,7 +8,6 @@ import java.util.List;
 @Builder
 public class CableLifecycleReport {
     private Long cableId;
-    private int totalVirtualDaysSurvived;
     private double startingHealth;
     private double finalHealth;
     private double averageOperatingTemp;
@@ -16,4 +15,6 @@ public class CableLifecycleReport {
     private String primaryFailureCause;
     private double avoidedCarbonKg;
     private List<CableTelemetry> historicalTimeline;
+    private double finalSnr;
+    private double finalMse;
 }

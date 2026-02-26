@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/report")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allow React on localhost:5173 to access this endpoint
+@CrossOrigin(origins = "*")
 public class ReportController {
 
     private final CableTelemetryRepository telemetryRepository;
@@ -25,7 +25,6 @@ public class ReportController {
     @GetMapping("/{cableId}")
     public Map<String, String> getAiPoweredReport(@PathVariable Long cableId) {
 
-        // 1. Fetch entire history
         List<CableTelemetry> history = telemetryRepository.findByCableIdOrderByTimestampAsc(cableId);
 
         if (history.isEmpty()) {
@@ -34,34 +33,37 @@ public class ReportController {
 
         CableTelemetry firstRecord = history.get(0);
         CableTelemetry lastRecord = history.get(history.size() - 1);
-        int virtualDaysSurvived = history.size() * 6; // Based on your 6-day simulation jump
 
+
+
+        // 1. Extract Final Layer 1 Metrics for AI Analysis
+        double finalSnr = lastRecord.getSnr();
+        double finalMse = lastRecord.getMse();
         double avgTemp = history.stream().mapToDouble(CableTelemetry::getTemperature).average().orElse(0.0);
         double avgAttn = history.stream().mapToDouble(CableTelemetry::getAttenuation).average().orElse(0.0);
 
         // 2. Calculate Exact Carbon Match
-        // We pass the final health to get the exact exact Avoided Carbon from your dynamic profiles
         CarbonMetrics exactMetrics = sustainabilityService.calculateMetrics(cableId, lastRecord.getHealth());
-
-        // Round to 2 decimal places so the AI matches the UI perfectly (e.g., 23.23)
         double exactAvoidedCarbon = Math.round(exactMetrics.getAvoidedCarbonKg() * 100.0) / 100.0;
 
-        // 3. Build the Raw Report
+        // 3. Build the Raw Report with SNR and MSE
+        // Ensure your CableLifecycleReport model has .finalSnr() and .finalMse() fields!
         CableLifecycleReport rawReport = CableLifecycleReport.builder()
                 .cableId(cableId)
-                .totalVirtualDaysSurvived(virtualDaysSurvived)
                 .startingHealth(firstRecord.getHealth())
                 .finalHealth(lastRecord.getHealth())
                 .averageOperatingTemp(avgTemp)
                 .averageAttenuation(avgAttn)
-                .avoidedCarbonKg(exactAvoidedCarbon) // 4. Replaced the hardcoded 0.04 multiplier!
+                .finalSnr(finalSnr)
+                .finalMse(finalMse)
+                .avoidedCarbonKg(exactAvoidedCarbon)
                 .historicalTimeline(history)
                 .build();
 
-        // 4. Generate the AI Summary via Gemini 2.5 Flash
+        // 4. Generate the AI Summary
+        // The prompt we updated in GeminiService will now find these SNR/MSE values in the JSON
         String aiSummary = geminiService.generateExecutiveSummary(rawReport);
 
-        // 5. Return ONLY the AI Summary to the frontend to save bandwidth
         return Map.of("aiExecutiveSummary", aiSummary);
     }
 }

@@ -99,7 +99,6 @@ public class DashboardController {
         // 5. Build and return the executive report
         return CableLifecycleReport.builder()
                 .cableId(cableId)
-                .totalVirtualDaysSurvived(virtualDaysSurvived)
                 .startingHealth(firstRecord.getHealth())
                 .finalHealth(lastRecord.getHealth())
                 .averageOperatingTemp(avgTemp)

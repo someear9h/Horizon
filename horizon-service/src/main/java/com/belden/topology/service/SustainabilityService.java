@@ -9,6 +9,8 @@ public class SustainabilityService {
     private static final double CO2_MFG_COPPER = 4.7;
     private static final double CO2_MFG_PVC = 2.4;
     private static final double CO2_TRANSPORT = 0.5;
+
+    // Kept for legacy compatibility, though no longer used in the new math
     private static final double INDUSTRY_STD_LIFE_YEARS = 3.0;
 
     public CarbonMetrics calculateMetrics(Long cableId, double currentHealth) {
@@ -31,15 +33,25 @@ public class SustainabilityService {
             pvcWeightKg = 1.2;
         }
 
+        // 1. E_embedded: Total Embedded Carbon (Hardware Cost)
         double manufacturingImpact = (copperWeightKg * CO2_MFG_COPPER) + (pvcWeightKg * CO2_MFG_PVC);
         double totalEmbedded = manufacturingImpact + CO2_TRANSPORT;
 
+        // 2. E_grid: Local Grid Intensity (kg CO2 per kWh)
+        double eGrid = 0.45; // Standard US grid average
+
+        // 3. T_downtime: Prevented Downtime Energy
+        // Document states restarts consume 3x steady-state energy due to motor inrush.
+        // Assume a 24-hour prevented shutdown of a 100kW machine.
+        double tDowntimeEnergy = 100.0 * 24.0 * 3.0;
+
+        // EXACT MATH MATCH: Avoided Carbon = (E_grid * T_downtime) - E_embedded
+        double avoidedImpact = (eGrid * tDowntimeEnergy) - totalEmbedded;
+
+        // 4. Operational Waste (The dynamic surge for the UI charts)
         double efficiencyLossFactor = (100 - currentHealth) * 0.15;
         double baseEnergyC02 = 1.2;
         double operationalImpact = baseEnergyC02 * (1 + efficiencyLossFactor);
-
-        double theoreticalLifeExtension = 1.5;
-        double avoidedImpact = (totalEmbedded / INDUSTRY_STD_LIFE_YEARS) * theoreticalLifeExtension;
 
         String rating = "A+";
         if (currentHealth < 50) rating = "B";
