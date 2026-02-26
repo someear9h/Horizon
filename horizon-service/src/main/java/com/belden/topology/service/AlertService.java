@@ -35,12 +35,12 @@ public class AlertService {
                     lineName = "Assembly-Line-3";
                     break;
                 case 2:
-                    machineName = "Conveyor-Belt";
-                    lineName = "Assembly-Line-3";
+                    machineName = "Cable 2";
+                    lineName = "Data Link";
                     break;
                 case 3:
-                    machineName = "Main Switch Uplink";
-                    lineName = "Server Room";
+                    machineName = "HVAC Cooling";
+                    lineName = "Aux Power 1";
                     break;
                 default:
                     // Fallback to the database query just in case it's a new unknown cable
