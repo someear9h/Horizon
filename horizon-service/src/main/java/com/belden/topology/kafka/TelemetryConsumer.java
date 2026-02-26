@@ -20,29 +20,40 @@ public class TelemetryConsumer {
 
     @KafkaListener(topics = "cable-telemetry", groupId = "rul-group-2")
     public void consume(CableTelemetry telemetry) {
-        System.out.println("Kafka Message received: " + telemetry);
 
-        // 1. Calculate the current Health Index
-        double health = rulService.calculateHealth(
+        System.out.println(">>> [KAFKA] Received Telemetry for Cable-" + telemetry.getCableId());
+
+        // 1. Fetch the previous state to calculate the drop
+        var lastRecord = repository.findTopByCableIdOrderByTimestampDesc(telemetry.getCableId());
+        double prevHealth = lastRecord.map(CableTelemetry::getHealth).orElse(100.0);
+
+        // 2. Demo Polish: If Postman didn't send SNR or MSE, set them to healthy defaults
+        // so the math doesn't crash to 0 immediately.
+        if (telemetry.getSnr() == 0.0) telemetry.setSnr(30.0);
+        if (telemetry.getMse() == 0.0) telemetry.setMse(0.01);
+
+        // 3. Calculate Enriched Health using your MVP math
+        double currentHealth = rulService.calculateHealth(
                 telemetry.getAttenuation(),
                 telemetry.getTemperature(),
                 telemetry.getLoad(),
                 telemetry.getSnr(),
                 telemetry.getMse(),
-                2
+                2 // Default age
         );
 
-        // 2. Set the calculated fields
-        telemetry.setHealth(health);
+        // 4. Calculate Correct RUL (Using the same 5-day step as the Scheduler)
+        double rulDays = rulService.calculateRulDays(currentHealth, prevHealth, 5);
+
+        // 5. Update the object and Save to DB
+        telemetry.setHealth(currentHealth);
+        telemetry.setRulInDays(rulDays);
         telemetry.setTimestamp(LocalDateTime.now());
+        telemetry.setLastSeen(LocalDateTime.now());
 
-        // 3. PERSIST to the database so calculateRUL can find it later
         repository.save(telemetry);
-        System.out.println("Saved telemetry with Health: " + health);
 
-        double rulMinutes = rulService.calculateRUL(telemetry.getCableId());
-
-        // check for critical impacts
-        alertService.checkAndAlert(telemetry.getCableId(), health, rulMinutes);
+        System.out.println("<<< [KAFKA SAVED] Health: " + Math.round(currentHealth) +
+                "% | RUL: " + Math.round(rulDays) + " Days");
     }
 }

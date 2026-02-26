@@ -63,7 +63,6 @@ public class RulService {
 //
 //        return Math.max(0, projectedRul);
 //    }
-
     public double calculateRulDays(double currentHealth,
                                    double previousHealth,
                                    int daysPassedInStep) {
