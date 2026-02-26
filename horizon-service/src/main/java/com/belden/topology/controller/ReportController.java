@@ -35,40 +35,29 @@ public class ReportController {
         CableTelemetry firstRecord = history.get(0);
         CableTelemetry lastRecord = history.get(history.size() - 1);
 
-        int finalDay = history.size() * 5; // Fallback
-        if (history.size() > 1) {
-            double h1 = history.get(0).getHealth();
-            double h2 = history.get(1).getHealth();
-            double healthDrop = h1 - h2;
-
-            if (healthDrop > 0) {
-                double dropPerDay = healthDrop / 5.0; // 5 days passed between tick 0 and tick 1
-                finalDay = (int) Math.round(h1 / dropPerDay); // Exact projection to 0% health
-            }
-        }
+        // Since the first record is Day 0, we subtract 1 from the size and multiply by the 5-day step.
+        int finalDay = (history.size() - 1) * 5;
 
         Map<String, CableTelemetry> milestones = new LinkedHashMap<>();
         for (int i = 0; i < history.size(); i++) {
-            int virtualDay = (i + 1) * 5;
+            int virtualDay = i * 5;
 
-            if (virtualDay % 50 == 0) {
+            // Grab Day 50, 100, 150, 200, 250
+            if (virtualDay > 0 && virtualDay % 50 == 0) {
                 milestones.put("Day " + virtualDay, history.get(i));
             }
         }
 
         milestones.put("Final Status (Day " + finalDay + ")", lastRecord);
 
-        // 1. Extract Final Layer 1 Metrics for AI Analysis
         double finalSnr = lastRecord.getSnr();
         double finalMse = lastRecord.getMse();
         double avgTemp = history.stream().mapToDouble(CableTelemetry::getTemperature).average().orElse(0.0);
         double avgAttn = history.stream().mapToDouble(CableTelemetry::getAttenuation).average().orElse(0.0);
 
-        // 2. Calculate Exact Carbon Match
         CarbonMetrics exactMetrics = sustainabilityService.calculateMetrics(cableId, lastRecord.getHealth());
         double exactAvoidedCarbon = Math.round(exactMetrics.getAvoidedCarbonKg() * 100.0) / 100.0;
 
-        // 3. Build the Raw Report
         CableLifecycleReport rawReport = CableLifecycleReport.builder()
                 .cableId(cableId)
                 .startingHealth(firstRecord.getHealth())
@@ -82,7 +71,6 @@ public class ReportController {
                 .degradationMilestones(milestones)
                 .build();
 
-        // 4. Generate the AI Summary
         String aiSummary = geminiService.generateExecutiveSummary(rawReport);
 
         return Map.of("aiExecutiveSummary", aiSummary);

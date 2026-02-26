@@ -10,9 +10,6 @@ public class SustainabilityService {
     private static final double CO2_MFG_PVC = 2.4;
     private static final double CO2_TRANSPORT = 0.5;
 
-    // Kept for legacy compatibility, though no longer used in the new math
-    private static final double INDUSTRY_STD_LIFE_YEARS = 3.0;
-
     public CarbonMetrics calculateMetrics(Long cableId, double currentHealth) {
 
         double copperWeightKg = 0.0;

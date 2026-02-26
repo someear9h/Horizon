@@ -21,7 +21,7 @@ public class HealthAuditScheduler {
     private final CableTelemetryRepository telemetryRepository;
 
     private int virtualDaysPassed = 0;
-    private final int SIMULATION_STEP_DAYS = 5; // Jumps 5 days every tick
+    private final int SIMULATION_STEP_DAYS = 5;
 
     @Scheduled(fixedRate = 2000)
     public void performGlobalHealthAudit() {
@@ -35,29 +35,24 @@ public class HealthAuditScheduler {
 
                         System.out.println(">>> [AUTO-AUDIT] Simulating Decay for Cable-" + cable.getCableId());
 
-                        // ✅ LAYER 1 DEGRADATION LOGIC (Tuned for EXACT 250-Day Death)
-                        // These specific increments cause EXACTLY a -2.0 Health drop per tick in the service.
-                        // 100 Health / 2.0 Drop = 50 Ticks.
-                        // 50 Ticks * 5 Days = 250 Virtual Days!
-
-                        double newTemp = lastData.getTemperature() + 1.0;     // Causes -0.15 Health
-                        double newAttn = lastData.getAttenuation() + 0.1;     // Causes -0.25 Health
-                        double newSnr = Math.max(0, lastData.getSnr() - 1.0); // Causes -0.40 Health
-                        double newMse = lastData.getMse() + 0.06;             // Causes -1.20 Health
+                        // TUNED FOR EXACTLY 300 DAYS LINEAR DECAY
+                        // By dropping SNR by 0.5 instead of 1.0, SNR will not hit zero before the cable dies.
+                        // This prevents the decay line from bending.
+                        double newTemp = lastData.getTemperature() + 0.5;     // Causes -0.075 Health
+                        double newAttn = lastData.getAttenuation() + 0.1;     // Causes -0.250 Health
+                        double newSnr = Math.max(0, lastData.getSnr() - 0.5); // Causes -0.200 Health
+                        double newMse = lastData.getMse() + 0.0545;           // Causes -1.090 Health
 
                         double currentLoad = lastData.getLoad();
 
-                        // 3. CALCULATE ENRICHED HEALTH
                         double currentHealth = rulService.calculateHealth(
                                 newAttn, newTemp, currentLoad, newSnr, newMse, 2
                         );
 
-                        // 4. CALCULATE PREDICTIVE RUL
                         double rulDays = rulService.calculateRulDays(
                                 currentHealth, lastData.getHealth(), SIMULATION_STEP_DAYS
                         );
 
-                        // 5. ENRICH AND SAVE
                         CableTelemetry newRecord = CableTelemetry.builder()
                                 .cableId(cable.getCableId())
                                 .temperature(newTemp)
