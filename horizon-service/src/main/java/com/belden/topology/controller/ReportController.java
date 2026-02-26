@@ -36,14 +36,13 @@ public class ReportController {
         CableTelemetry lastRecord = history.get(history.size() - 1);
 
         // Since the first record is Day 0, we subtract 1 from the size and multiply by the 5-day step.
-        int finalDay = (history.size() - 1) * 5;
+        int finalDay = history.size() * 6;
 
         Map<String, CableTelemetry> milestones = new LinkedHashMap<>();
         for (int i = 0; i < history.size(); i++) {
-            int virtualDay = i * 5;
+            int virtualDay = (i + 1) * 6;
 
-            // Grab Day 50, 100, 150, 200, 250
-            if (virtualDay > 0 && virtualDay % 50 == 0) {
+            if (i > 0 && (i + 1) % 10 == 0) {
                 milestones.put("Day " + virtualDay, history.get(i));
             }
         }

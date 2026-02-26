@@ -38,7 +38,7 @@ const RecommendationsList: React.FC<RecommendationsListProps> = ({
     >
       <div className="p-4 border-b border-gray-800/50">
         <h2 className="text-lg font-bold text-white font-inter">
-          AI Recommendations
+          Smart Recommendations
         </h2>
         <p className="text-xs text-gray-400 mt-1">
           Predictive maintenance actions

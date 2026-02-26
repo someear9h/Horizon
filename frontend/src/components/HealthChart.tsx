@@ -18,12 +18,12 @@ interface HealthChartProps {
 }
 
 const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
-  // ✅ FIX: Removed .slice(-20) so the graph renders the complete history timeline.
+  // FIX: Removed .slice(-20) so the graph renders the complete history timeline.
   // We keep .reverse() so the oldest data is on the left and newest is on the right.
   const chartData = [...data]
     .reverse() 
     .map((record, index) => ({
-      dayLabel: `Day ${(index + 1) * 6}`, // Multiplied by 6 to match the virtual days scale
+      dayLabel: `Day ${(index + 1) * 6}`,
       health: Math.round(record.health),
     }));
 
@@ -37,7 +37,7 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, loading }) => {
       <div className="p-4 border-b border-gray-800/50 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-bold text-white font-inter text-left">Lifecycle Degradation</h2>
-          <p className="text-xs text-gray-400 mt-1 text-left">Accelerated Aging Simulation [1s = 1 Day]</p>
+          {/* <p className="text-xs text-gray-400 mt-1 text-left">Accelerated Aging Simulation [1s = 1 Day]</p> */}
         </div>
         <div className="text-[10px] bg-orange-900/30 text-[#ff6600] px-2 py-1 rounded border border-[#ff6600]/30 font-mono font-bold uppercase">
           Time Compression Active
