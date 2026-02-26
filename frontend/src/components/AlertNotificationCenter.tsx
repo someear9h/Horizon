@@ -36,22 +36,25 @@ const AlertNotificationCenter: React.FC = () => {
           if (!sessionSeen.current.has(alertKey)) {
             sessionSeen.current.add(alertKey);
 
+            const correctedMessage = alert.message.replace("Hours", "Days");
+
             const ToastContent = () => (
-              <div className="font-inter">
-                <div className="flex justify-between items-start mb-1">
-                  <strong className="text-sm uppercase tracking-wider">
-                    {alert.severity} ALERT - Asset #{alert.cableId}
-                  </strong>
-                </div>
-                <p className="text-xs leading-relaxed opacity-90 mb-2">{alert.message}</p>
-                <button 
-                  onClick={() => handleViewImpact(alert.cableId)}
-                  className="text-[10px] bg-white/10 hover:bg-white/20 px-2 py-1 rounded border border-white/20 transition-colors uppercase font-bold"
-                >
-                  View Blast Radius
-                </button>
-              </div>
-            );
+      <div className="font-inter">
+        <div className="flex justify-between items-start mb-1">
+          <strong className="text-sm uppercase tracking-wider">
+            {alert.severity} ALERT - Asset #{alert.cableId}
+          </strong>
+        </div>
+        {/* Use correctedMessage here */}
+        <p className="text-xs leading-relaxed opacity-90 mb-2">{correctedMessage}</p>
+        <button 
+          onClick={() => handleViewImpact(alert.cableId)}
+          className="text-[10px] bg-white/10 hover:bg-white/20 px-2 py-1 rounded border border-white/20 transition-colors uppercase font-bold"
+        >
+          View Blast Radius
+        </button>
+      </div>
+    );
 
             // Triggering Toast based on severity [cite: 19]
             if (alert.severity === 'CRITICAL') {
