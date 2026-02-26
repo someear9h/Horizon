@@ -19,6 +19,9 @@ public class DatabaseCleanupConfig {
             // RESTART IDENTITY resets the ID counter back to 1.
             try {
                 jdbcTemplate.execute("TRUNCATE TABLE cable_telemetry RESTART IDENTITY CASCADE");
+
+                try { jdbcTemplate.execute("TRUNCATE TABLE alert RESTART IDENTITY CASCADE"); } catch (Exception ignored) {}
+                try { jdbcTemplate.execute("TRUNCATE TABLE alerts RESTART IDENTITY CASCADE"); } catch (Exception ignored) {}
                 System.out.println(">>> [INIT] Database Cleaned. Ready for baseline.");
             } catch (Exception e) {
                 System.out.println(">>> [INIT] Table might not exist yet, skipping cleanup.");
