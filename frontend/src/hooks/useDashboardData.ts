@@ -25,8 +25,9 @@ export interface HistoryRecord {
 
 export interface CarbonData {
   avoidedCarbonKg: number;
+  operationalCarbonKg: number;
   embeddedCarbonKg: number;
-  sustainabilityRating: number;
+  sustainabilityRating: string;
 }
 
 export interface RiskData {
@@ -72,7 +73,6 @@ const useDashboardData = (cableId: number) => {
 
   const fetchData = useCallback(async () => {
     try {
-      // ✅ SENIOR FIX: Only show loading state if it's the very first time
       if (!initialLoadDone.current) {
         setData((prev) => ({ ...prev, loading: true, error: null }));
       } else {

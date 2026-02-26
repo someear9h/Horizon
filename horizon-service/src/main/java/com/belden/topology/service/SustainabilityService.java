@@ -34,7 +34,7 @@ public class SustainabilityService {
         double manufacturingImpact = (copperWeightKg * CO2_MFG_COPPER) + (pvcWeightKg * CO2_MFG_PVC);
         double totalEmbedded = manufacturingImpact + CO2_TRANSPORT;
 
-        double efficiencyLossFactor = (100 - currentHealth) * 0.05;
+        double efficiencyLossFactor = (100 - currentHealth) * 0.15;
         double baseEnergyC02 = 1.2;
         double operationalImpact = baseEnergyC02 * (1 + efficiencyLossFactor);
 

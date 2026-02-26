@@ -21,9 +21,9 @@ public class HealthAuditScheduler {
     private final CableTelemetryRepository telemetryRepository;
 
     private int virtualDaysPassed = 0;
-    private final int SIMULATION_STEP_DAYS = 6; // We jump 5 days every tick
+    private final int SIMULATION_STEP_DAYS = 5; // Jumps 5 days every tick
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 2000)
     public void performGlobalHealthAudit() {
         virtualDaysPassed += SIMULATION_STEP_DAYS;
 
@@ -31,49 +31,54 @@ public class HealthAuditScheduler {
             telemetryRepository.findTopByCableIdOrderByTimestampDesc(cable.getCableId())
                     .ifPresent(lastData -> {
 
-                        // 1. STOP if dead
                         if (lastData.getHealth() <= 0.0) return;
 
                         System.out.println(">>> [AUTO-AUDIT] Simulating Decay for Cable-" + cable.getCableId());
 
-                        // 2. DEGRADE
-//                        double newTemp = lastData.getTemperature() + 4.0;
-//                        double newAttn = lastData.getAttenuation() + 0.6;
+                        // ✅ LAYER 1 DEGRADATION LOGIC (Tuned for EXACT 250-Day Death)
+                        // These specific increments cause EXACTLY a -2.0 Health drop per tick in the service.
+                        // 100 Health / 2.0 Drop = 50 Ticks.
+                        // 50 Ticks * 5 Days = 250 Virtual Days!
 
-                        double newTemp = lastData.getTemperature() + 0.5; // Slow heat rise
-                        double newAttn = lastData.getAttenuation() + 0.05; // Gradual signal loss
+                        double newTemp = lastData.getTemperature() + 1.0;     // Causes -0.15 Health
+                        double newAttn = lastData.getAttenuation() + 0.1;     // Causes -0.25 Health
+                        double newSnr = Math.max(0, lastData.getSnr() - 1.0); // Causes -0.40 Health
+                        double newMse = lastData.getMse() + 0.06;             // Causes -1.20 Health
+
                         double currentLoad = lastData.getLoad();
 
-                        double currentHealth = rulService.calculateHealth(newAttn, newTemp, currentLoad, 2);
-
-                        // 3. CALCULATE PERFECT RUL
-                        // We use the exact drop between 'lastData.getHealth()' and 'currentHealth'
-                        double rulDays = rulService.calculateRulDays(
-                                currentHealth,
-                                lastData.getHealth(),
-                                SIMULATION_STEP_DAYS
+                        // 3. CALCULATE ENRICHED HEALTH
+                        double currentHealth = rulService.calculateHealth(
+                                newAttn, newTemp, currentLoad, newSnr, newMse, 2
                         );
 
-                        // 4. SAVE
-                        CableTelemetry newRecord = new CableTelemetry();
-                        newRecord.setCableId(cable.getCableId());
-                        newRecord.setTemperature(newTemp);
-                        newRecord.setAttenuation(newAttn);
-                        newRecord.setLoad(currentLoad);
-                        newRecord.setHealth(currentHealth);
-                        newRecord.setRulInDays(rulDays); // Save the synced prediction
-                        newRecord.setTimestamp(LocalDateTime.now());
-                        newRecord.setLastSeen(LocalDateTime.now());
+                        // 4. CALCULATE PREDICTIVE RUL
+                        double rulDays = rulService.calculateRulDays(
+                                currentHealth, lastData.getHealth(), SIMULATION_STEP_DAYS
+                        );
+
+                        // 5. ENRICH AND SAVE
+                        CableTelemetry newRecord = CableTelemetry.builder()
+                                .cableId(cable.getCableId())
+                                .temperature(newTemp)
+                                .attenuation(newAttn)
+                                .snr(newSnr)
+                                .mse(newMse)
+                                .load(currentLoad)
+                                .health(currentHealth)
+                                .rulInDays(rulDays)
+                                .timestamp(LocalDateTime.now())
+                                .lastSeen(LocalDateTime.now())
+                                .build();
 
                         telemetryRepository.save(newRecord);
 
-                        // 5. ALERT
                         System.out.println("STATUS: Cable-" + cable.getCableId() +
+                                " | Health: " + Math.round(currentHealth) + "%" +
                                 " | Day: " + virtualDaysPassed +
-                                " | Health: " + Math.round(currentHealth) +
                                 " | RUL: " + Math.round(rulDays) + " Days");
 
-                        alertService.checkAndAlert(cable.getCableId(), currentHealth, rulDays * 24);
+                        alertService.checkAndAlert(cable.getCableId(), currentHealth, rulDays);
                     });
         });
     }

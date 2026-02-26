@@ -24,6 +24,10 @@ public class CableTelemetry {
     private double attenuation;
     private double temperature;
     private double load;
+
+    private double snr;
+    private double mse;
+
     private double health;
     private LocalDateTime timestamp;
     private LocalDateTime lastSeen;

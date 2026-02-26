@@ -27,6 +27,8 @@ public class TelemetryConsumer {
                 telemetry.getAttenuation(),
                 telemetry.getTemperature(),
                 telemetry.getLoad(),
+                telemetry.getSnr(),
+                telemetry.getMse(),
                 2
         );
 
