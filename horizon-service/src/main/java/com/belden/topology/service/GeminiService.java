@@ -34,13 +34,21 @@ public class GeminiService {
 
             // 2. The "Winner Level" System Prompt
             String prompt = "You are an AI Industrial Reliability Expert for Belden Horizon. " +
-                    "Analyze the following JSON telemetry report of a failed Hirschmann network cable. " +
+                    "Analyze the following JSON telemetry report of a Hirschmann network cable. " +
                     "Generate a chronological degradation report. " +
-                    "RULE 1: Format the output strictly day-by-day using the 'degradationMilestones' provided in the JSON (e.g., 'Day 50: ...', 'Day 100: ...'). " +
-                    "RULE 2: For each milestone, explicitly state the Temperature, Attenuation, SNR, and MSE metrics, and briefly explain the physical state of the cable. " +
-                    "RULE 3: Conclude the report with a 'Final Impact' statement that explicitly declares the exact number of days the cable survived (using the 'Final Status' day from the JSON), and state the exact Avoided Carbon footprint in kg CO2e. " +
-                    "Do not use markdown formatting like asterisks or bold text, just use clean line breaks. \n\n" +
-                    "DATA: " + minifiedJson;
+
+                    "\n\nSTRICT PHYSICAL CONSTRAINTS FOR YOUR ANALYSIS:" +
+                    "\n- BASELINE TEMP: 25°C is normal. Anything above 60°C is CRITICAL and indicates melting insulation." +
+                    "\n- SIGNAL INTEGRITY: SNR below 20 is a catastrophic failure. SNR 30+ is healthy." +
+                    "\n- DISTORTION: MSE above 0.1 indicates severe data packet loss and signal distortion." +
+                    "\n- If you see 85°C or 142°C, you MUST describe it as a severe thermal violation, not 'moderate' or 'average'." +
+
+                    "\n\nRULE 1: Format the output strictly day-by-day using the 'degradationMilestones' provided (e.g., 'Day 60: ...')." +
+                    "\nRULE 2: For each milestone, explicitly state the Temperature, Attenuation, SNR, and MSE metrics, and explain the physical state based on the constraints above." +
+                    "\nRULE 3: Conclude with a 'Final Impact' statement declaring the exact number of days survived and the exact Avoided Carbon in kg CO2e." +
+                    "\nRULE 4: Do not use markdown like asterisks or bold text. Use clean line breaks only." +
+
+                    "\n\nDATA: " + minifiedJson;
 
             // 3. Build the Gemini Request Payload
             Map<String, Object> requestBody = new HashMap<>();
