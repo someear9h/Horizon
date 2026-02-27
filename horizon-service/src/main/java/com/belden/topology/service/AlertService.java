@@ -17,7 +17,6 @@ public class AlertService {
     private final AlertRepository alertRepository;
 
     @Transactional
-    // 🚀 FIX: Renamed parameter to estimatedRulDays for accuracy
     public void checkAndAlert(Long cableId, double currentHealth, double estimatedRulDays) {
         double WARNING_THRESHOLD = 50.0;
         double CRITICAL_THRESHOLD = 20.0;
@@ -27,7 +26,6 @@ public class AlertService {
             String machineName;
             String lineName;
 
-            // 🚀 FIX: Hardcoded the known demo assets to guarantee the UI looks perfect.
             // These perfectly match your beautiful Neo4j Topology Graph!
             switch (cableId.intValue()) {
                 case 1:

@@ -32,7 +32,7 @@ public class GeminiService {
             // 1. Minify the JSON to save tokens and speed up the API call
             String minifiedJson = objectMapper.writeValueAsString(reportData);
 
-            // 2. The "Winner Level" System Prompt
+
             String prompt = "You are an AI Industrial Reliability Expert for Belden Horizon. " +
                     "Analyze the following JSON telemetry report of a Hirschmann network cable. " +
                     "Generate a chronological degradation report. " +

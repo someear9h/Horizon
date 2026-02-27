@@ -19,7 +19,6 @@ public class RulService {
                 // Penalize much harder to crash RUL to < 50 days.
                 health -= (excessHeat * 0.8);
             } else {
-                // 🚀 NORMAL OPS: Keep the gentle decay you already tuned.
                 health -= (excessHeat * 0.15);
             }
         }
